@@ -1,0 +1,591 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لوحة التحكم | LUSTRA</title>
+    <link rel="icon" type="image/png" href="images/logo.png">
+    <link rel="stylesheet" href="assets/css/style.css">
+    <style>
+        /* Admin Specific Styles - Modern Redesign */
+        body {
+            background-color: #f4f6f9;
+        }
+
+        .login-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #f4f6f9 0%, #e0e5ec 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+        }
+
+        .login-box {
+            background: #fff;
+            padding: 50px 40px;
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+            text-align: center;
+            width: 350px;
+        }
+
+        .login-box h2 {
+            margin-bottom: 5px;
+            color: #222;
+        }
+
+        .login-box p {
+            color: #666;
+            margin-bottom: 25px;
+        }
+
+        .admin-container {
+            display: none;
+            /* Hidden until login */
+            margin: 0;
+            padding: 0;
+            max-width: 100%;
+        }
+
+        .dashboard-layout {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Sidebar Styling */
+        .sidebar {
+            width: 280px;
+            background: #ffffff;
+            box-shadow: 2px 0 15px rgba(0, 0, 0, 0.03);
+            display: flex;
+            flex-direction: column;
+            position: fixed;
+            top: 0;
+            right: 0;
+            height: 100vh;
+            z-index: 100;
+        }
+
+        .sidebar-logo {
+            padding: 30px 20px;
+            text-align: center;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .sidebar-logo img {
+            width: 90px;
+            margin: 0 auto;
+        }
+
+        .sidebar-nav {
+            padding: 20px 15px;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .sidebar-nav .btn,
+        .sidebar-nav .btn-outline {
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
+            padding: 14px 20px;
+            border-radius: 10px;
+            font-size: 1.05rem;
+            width: 100%;
+            border: none;
+            transition: all 0.3s ease;
+            gap: 12px;
+        }
+
+        .sidebar-nav .btn {
+            background: var(--primary-color);
+            color: #fff;
+            box-shadow: 0 4px 12px rgba(17, 17, 17, 0.15);
+            font-weight: 600;
+        }
+
+        .sidebar-nav .btn-outline {
+            background: transparent;
+            color: #555;
+            font-weight: 500;
+        }
+
+        .sidebar-nav .btn-outline:hover {
+            background: #f8f9fa;
+            color: var(--primary-color);
+        }
+
+        .sidebar-nav svg {
+            width: 22px;
+            height: 22px;
+        }
+
+        /* Main Dashboard Content */
+        .dashboard-main {
+            flex: 1;
+            margin-right: 280px;
+            /* Leave space for sidebar */
+            padding: 30px 40px;
+        }
+
+        .dashboard-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 35px;
+            background: #fff;
+            padding: 20px 30px;
+            border-radius: 14px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.02);
+        }
+
+        .dashboard-header h1 {
+            font-size: 1.6rem;
+            color: #222;
+            margin: 0;
+            font-weight: 700;
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .logout-btn {
+            background: #fff;
+            border: 1px solid #ff4d4f;
+            color: #ff4d4f;
+            padding: 8px 20px;
+            border-radius: 8px;
+            font-weight: 600;
+            transition: all 0.3s;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .logout-btn:hover {
+            background: #ff4d4f;
+            color: #fff;
+        }
+
+        .form-panel {
+            background: #fff;
+            padding: 35px;
+            border-radius: 14px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
+            margin-bottom: 40px;
+        }
+
+        .form-panel h2 {
+            margin-bottom: 25px;
+            font-size: 1.4rem;
+            color: #333;
+            border-bottom: 2px solid #f0f0f0;
+            padding-bottom: 12px;
+            display: inline-block;
+        }
+
+        .form-group {
+            margin-bottom: 22px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 10px;
+            font-weight: 600;
+            color: #444;
+            font-size: 0.95rem;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            font-family: inherit;
+            transition: border-color 0.3s, box-shadow 0.3s;
+            background: #fafafa;
+        }
+
+        .form-control:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(17, 17, 17, 0.05);
+            outline: none;
+            background: #fff;
+        }
+
+        .form-row-3 {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 25px;
+        }
+
+        .form-row-2 {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 25px;
+        }
+
+        .preview-img {
+            max-width: 150px;
+            max-height: 150px;
+            margin-top: 10px;
+            display: none;
+            border: 1px solid #d5d5d5;
+            border-radius: 8px;
+        }
+
+        /* Modern Tables */
+        .table-container {
+            background: #fff;
+            border-radius: 14px;
+            overflow: hidden;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: #fff;
+        }
+
+        th,
+        td {
+            padding: 18px 20px;
+            text-align: right;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        th {
+            background-color: #f8f9fa;
+            font-weight: 700;
+            color: #444;
+            font-size: 0.95rem;
+            white-space: nowrap;
+        }
+
+        td {
+            color: #555;
+            vertical-align: middle;
+        }
+
+        tbody tr:hover {
+            background-color: #fcfcfc;
+        }
+
+        .admin-img-thumb {
+            width: 60px;
+            height: 60px;
+            object-fit: cover;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Responsive Breakpoints */
+        @media (max-width: 992px) {
+            .dashboard-layout {
+                flex-direction: column;
+            }
+
+            .sidebar {
+                width: 100%;
+                height: auto;
+                position: relative;
+                flex-direction: column;
+                align-items: center;
+                padding: 15px 20px;
+            }
+
+            .sidebar-logo {
+                padding: 0;
+                border: none;
+                margin-left: 0;
+                margin-bottom: 15px;
+            }
+
+            .sidebar-logo img {
+                width: 80px;
+            }
+
+            .sidebar-nav {
+                width: 100%;
+                flex-direction: row;
+                justify-content: center;
+                padding: 0;
+                gap: 10px;
+            }
+
+            .sidebar-nav .btn,
+            .sidebar-nav .btn-outline {
+                flex: 1;
+                justify-content: center;
+                padding: 10px 5px;
+                white-space: nowrap;
+                font-size: 0.85rem;
+                gap: 5px;
+            }
+
+            .sidebar-nav svg {
+                width: 18px;
+                height: 18px;
+            }
+
+            .dashboard-main {
+                margin-right: 0;
+                padding: 20px;
+            }
+        }
+
+        @media (max-width: 768px) {
+
+            .form-row-3,
+            .form-row-2 {
+                grid-template-columns: 1fr;
+                gap: 5px;
+                /* Tighter gap on mobile because fields stack */
+            }
+
+            .dashboard-header {
+                flex-direction: column;
+                gap: 15px;
+                text-align: center;
+                padding: 15px;
+            }
+
+            .form-panel {
+                padding: 20px;
+            }
+
+            th,
+            td {
+                padding: 12px 10px;
+            }
+
+            .btn {
+                padding: 10px 20px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Login Screen -->
+    <div id="login-screen" class="login-overlay">
+        <div class="login-box">
+            <img src="images/logo.png" alt="Logo" style="width: 120px; margin: 0 auto 20px auto; display: block;">
+            <h2>تسجيل الدخول</h2>
+            <p>لوحة تحكم إدارة المتجر</p>
+            <input type="email" id="admin-email" class="form-control mb-1" placeholder="البريد الإلكتروني">
+            <input type="password" id="admin-pass" class="form-control mb-1" placeholder="كلمة المرور">
+            <button onclick="checkAdmin()" class="btn" style="width: 100%; font-size: 1.1rem; padding: 12px;">دخول
+                آمن</button>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div id="admin-content" class="admin-container">
+        <div class="dashboard-layout">
+
+            <!-- Sidebar -->
+            <aside class="sidebar">
+                <div class="sidebar-logo">
+                    <img src="images/logo.png" alt="LUSTRA">
+                </div>
+                <nav class="sidebar-nav">
+                    <button class="btn" id="btn-products" onclick="switchTab('products')">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                            stroke-linecap="round" stroke-linejoin="round">
+                            <path
+                                d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z">
+                            </path>
+                            <polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline>
+                            <line x1="12" y1="22.08" x2="12" y2="12"></line>
+                        </svg>
+                        إدارة الاسكرابات
+                    </button>
+                    <button class="btn-outline" id="btn-orders" onclick="switchTab('orders')">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                            stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="9" cy="21" r="1"></circle>
+                            <circle cx="20" cy="21" r="1"></circle>
+                            <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
+                        </svg>
+                        الطلبات الواردة
+                    </button>
+                </nav>
+            </aside>
+
+            <!-- Main Workspace -->
+            <main class="dashboard-main">
+                <header class="dashboard-header">
+                    <h1>مرحباً بك في لوحة التحكم 👋</h1>
+                    <div class="header-actions">
+                        <button onclick="logout()" class="logout-btn">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+                                <polyline points="16 17 21 12 16 7"></polyline>
+                                <line x1="21" y1="12" x2="9" y2="12"></line>
+                            </svg>
+                            تسجيل خروج
+                        </button>
+                    </div>
+                </header>
+
+                <!-- PRODUCTS VIEW -->
+                <div id="products-view">
+                    <!-- Add Product Form -->
+                    <div class="form-panel">
+                        <h2>إضافة سكراب جديد</h2>
+                        <form id="add-product-form" onsubmit="handleAddProduct(event)">
+                            <input type="hidden" id="product-id"> <!-- Hidden ID for Editing -->
+
+                            <div class="form-row-2">
+                                <div class="form-group">
+                                    <label>اسم الاسكراب</label>
+                                    <input type="text" id="p-name" class="form-control" placeholder="أدخل اسم الاسكراب"
+                                        required>
+                                </div>
+                                <div class="form-group">
+                                    <label>الرابط التعريفي (Label)</label>
+                                    <input type="text" id="p-label" class="form-control"
+                                        placeholder="مثال: example-scrub" style="direction: ltr; text-align: right;">
+                                </div>
+                            </div>
+
+                            <div class="form-row-2">
+                                <div class="form-group">
+                                    <label>السعر (بعد الخصم)</label>
+                                    <input type="number" id="p-price" class="form-control" placeholder="ج.م" required>
+                                </div>
+                                <div class="form-group">
+                                    <label>السعر قبل الخصم (اختياري)</label>
+                                    <input type="number" id="p-old-price" class="form-control" placeholder="مثال: 600">
+                                </div>
+                            </div>
+
+                            <div class="form-row-2">
+                                <div class="form-group">
+                                    <label>التصنيف</label>
+                                    <select id="p-category" class="form-control" required>
+                                        <option value="" disabled selected>-- اختر التصنيف --</option>
+                                        <option value="v-cut">v-cut</option>
+                                        <option value="half-collar">half-collar</option>
+                                        <option value="female">female</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label>المقاسات (مفصولة بفاصلة)</label>
+                                    <input type="text" id="p-sizes" class="form-control" placeholder="مثال: S, M, L, XL"
+                                        required>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label>صور الاسكراب <span
+                                        style="font-size: 0.8rem; color: #dc3545; font-weight:normal;">(يمكن اختيار أكثر
+                                        من صورة، الحد الأقصى 1MB للصورة)</span></label>
+                                <input type="file" id="p-images" class="form-control" accept="image/*" multiple
+                                    onchange="previewImages(this)">
+                                <div id="images-preview-container"
+                                    style="display: flex; gap: 10px; flex-wrap: wrap; margin-top: 15px;"></div>
+                            </div>
+
+                            <div class="form-group">
+                                <label>تفاصيل ووصف الاسكراب</label>
+                                <textarea id="p-details" class="form-control" rows="5"
+                                    placeholder="اكتب تفاصيل ومميزات الاسكراب هنا..."></textarea>
+                            </div>
+
+                            <div style="margin-top: 30px;">
+                                <button type="submit" class="btn" style="padding: 12px 30px; font-size: 1.1rem;">حفظ
+                                    الاسكراب</button>
+                                <button type="button" class="btn btn-outline" id="cancel-edit-btn"
+                                    onclick="resetFormToAddMode()"
+                                    style="display: none; margin-right: 15px; padding: 12px 30px; font-size: 1.1rem; border: 1px solid #ccc;">إلغاء
+                                    التعديل</button>
+                            </div>
+                        </form>
+                    </div>
+
+                    <!-- Products List -->
+                    <div class="form-panel">
+                        <h2 style="margin-bottom: 20px; border: none; padding: 0;">الاسكرابات الحالية</h2>
+                        <div class="table-container" style="overflow-x: auto;">
+                            <table id="products-table">
+                                <thead>
+                                    <tr>
+                                        <th>الصورة</th>
+                                        <th>الاسم</th>
+                                        <th>السعر</th>
+                                        <th>التصنيف</th>
+                                        <th style="text-align: center;">إجراءات</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="products-table-body">
+                                    <!-- JS Populated -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ORDERS VIEW -->
+                <div id="orders-view" style="display: none;">
+                    <div class="form-panel">
+                        <div
+                            style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px;">
+                            <h2 style="margin: 0; border: none; padding: 0;">الطلبات الواردة</h2>
+                            <button onclick="renderOrdersTable()" class="btn"
+                                style="background: #2196F3; font-size: 0.95rem; padding: 8px 20px; box-shadow: 0 4px 10px rgba(33,150,243,0.3);">
+                                🔄 تحديث القائمة
+                            </button>
+                        </div>
+
+                        <div class="table-container" style="overflow-x: auto;">
+                            <table id="orders-table">
+                                <thead>
+                                    <tr>
+                                        <th>رقم الطلب</th>
+                                        <th>التاريخ</th>
+                                        <th>العميل</th>
+                                        <th>الاسكرابات</th>
+                                        <th>الإجمالي</th>
+                                        <th>الحالة</th>
+                                        <th style="text-align: center;">إجراءات</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="orders-table-body">
+                                    <!-- JS Populated -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- Supabase SDK -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" defer></script>
+    <script src="assets/js/supabase-config.js" defer></script>
+
+    <!-- Scripts -->
+    <script src="assets/js/storage.js" defer></script>
+    <script src="assets/js/main.js" defer></script>
+    <script src="assets/js/admin.js" defer></script>
+</body>
+
+</html>
